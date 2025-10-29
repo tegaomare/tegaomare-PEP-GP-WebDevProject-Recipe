@@ -1,7 +1,7 @@
-commit f69a52d4013b9b6c796bf09502f06e6f8f9afcc3
+commit d458fb5cdb2a6cf7d6ca0151e0c1a94659c184c7
 Author: tegaomare <tegaomare@github.com>
-Date:   Wed Oct 29 18:25:49 2025 +0000
+Date:   Wed Oct 29 18:35:49 2025 +0000
 
-    frontend login html and js pages updated
+    frontend recipe html and js pages updated
 
- 3 files changed, 70 insertions(+), 60 deletions(-)
+ 3 files changed, 187 insertions(+), 79 deletions(-)

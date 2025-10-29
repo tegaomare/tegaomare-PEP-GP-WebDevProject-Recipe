@@ -5,18 +5,26 @@
 const BASE_URL = "http://localhost:8081"; // backend URL
 
 /* 
- * TODO: Get references to various DOM elements
+ * DONE: Get references to various DOM elements
  * - usernameInput, emailInput, passwordInput, repeatPasswordInput, registerButton
  */
+window.addEventListener("DOMContentLoaded", () => {
+    const usernameInput       = document.getElementById("username-input");
+    const emailInput          = document.getElementById("email-input");
+    const passwordInput       = document.getElementById("password-input");
+    const repeatPasswordInput = document.getElementById("repeat-password-input");
+    const registerButton      = document.getElementById("register-button");
+  
 
 
 /* 
- * TODO: Ensure the register button calls processRegistration when clicked
+ * DONE: Ensure the register button calls processRegistration when clicked
  */
+    registerButton.addEventListener("click", processRegistration);
 
 
 /**
- * TODO: Process Registration Function
+ * DONE: Process Registration Function
  * 
  * Requirements:
  * - Retrieve username, email, password, and repeat password from input fields
@@ -39,23 +47,39 @@ const BASE_URL = "http://localhost:8081"; // backend URL
  * - Log error and alert user
  */
 async function processRegistration() {
-    // Implement registration logic here
-
-    // Example placeholder:
-    // const registerBody = { username, email, password };
-const requestOptions = {
-        method: "POST",
-        mode: "cors",
-        cache: "no-cache",
-        credentials: "same-origin",
-        headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "*"
-        },
-        redirect: "follow",
-        referrerPolicy: "no-referrer",
-        body: JSON.stringify(registerBody)
-    };
-    // await fetch(...)
-}
+    try {
+        const username = (usernameInput.value || "").trim();
+        const email    = (emailInput.value || "").trim();
+        const password = (passwordInput.value || "").trim();
+        const repeat   = (repeatPasswordInput.value || "").trim();
+  
+        if (!username || !email || !password || !repeat) {
+          alert("Please fill out all fields.");
+          return;
+        }
+        if (password !== repeat) {
+          alert("Passwords do not match.");
+          return;
+        }
+  
+        const res = await fetch(`${BASE_URL}/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, email, password })
+        });
+  
+        if (res.status === 201) {
+          // success => go to login
+          window.location.href = "../login/login-page.html";
+        } else if (res.status === 409) {
+          // duplicate
+          alert("Username or email already exists.");
+        } else {
+          alert("Registration failed. Please try again.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Network error while registering.");
+      }
+    }
+});
