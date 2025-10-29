@@ -23,6 +23,9 @@ window.addEventListener("DOMContentLoaded", () => {
   const addBtn   = document.getElementById("add-ingredient-submit-button");
   const delBtn   = document.getElementById("delete-ingredient-submit-button");
   const listEl   = document.getElementById("ingredient-list");
+
+  console.log("is-admin from sessionStorage:", sessionStorage.getItem("is-admin"));
+
   
     // Admin gate: redirect non-admins back to recipes
     if (sessionStorage.getItem("is-admin") !== "true") {
@@ -120,7 +123,9 @@ window.addEventListener("DOMContentLoaded", () => {
         const name = (delInput.value || "").trim();
         if (!name) { alert("Please enter an ingredient name to delete."); return; }
     
-        const match = ingredients.find(i => (i.name || "").toLowerCase() === name.toLowerCase());
+        const inputName = name.trim().toLowerCase();
+        const match = ingredients.find(i => (i.name || "").trim().toLowerCase() === inputName);
+
         if (!match) { alert("Ingredient not found."); return; }
     
         try {
@@ -160,7 +165,7 @@ window.addEventListener("DOMContentLoaded", () => {
         }
         for (const ing of ingredients) {
           const li = document.createElement("li");
-          li.textContent = ing.name;
+          li.textContent = ing.name || "(Unnamed Ingredient)";
           listEl.appendChild(li);
         }
     

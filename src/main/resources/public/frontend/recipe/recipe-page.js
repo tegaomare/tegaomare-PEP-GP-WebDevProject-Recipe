@@ -45,7 +45,12 @@ window.addEventListener("DOMContentLoaded", () => {
      * DONE: Show admin link if is-admin flag in sessionStorage is "true"
      */
     
-    if (sessionStorage.getItem("is-admin") === "true") adminLink.style.display = "inline-block";
+    if (adminLink && sessionStorage.getItem("is-admin") === "true") {
+      adminLink.style.display = "inline-block";
+    } else {
+        adminLink.style.display = "none";
+    }
+  
 
     /*
      * DONE: Attach event handlers
