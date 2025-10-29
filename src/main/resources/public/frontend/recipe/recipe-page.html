@@ -14,60 +14,35 @@
 </head>
 
 <body>
-
-    <!-- TODO: Add a hidden link with id="admin-link" to navigate to the ingredients page (admin only) -->
-
-    <!-- TODO: Add a hidden Logout button with id="logout-button" -->
-
-    <!-- TODO: Add an h1 heading for the Recipe Management section -->
-
-
-    <!-- 🔍 Search a Recipe -->
-    <!-- 
-        TODO: 
-        - Create an h2 with text "Search a Recipe"
-        - Add input with id="search-input"
-        - Add button with id="search-button" and text "Search"
-    -->
-
-
-    <!-- 📋 Recipe List -->
-    <!-- 
-        TODO: 
-        - Create a <ul> to hold all recipes
-        - Give it id="recipe-list"
-    -->
-
-
-    <!-- ➕ Add a Recipe -->
-    <!-- 
-        TODO: 
-        - h2 with "Add a Recipe"
-        - Input for recipe name (id="add-recipe-name-input")
-        - Textarea for instructions (id="add-recipe-instructions-input")
-        - Button to submit (id="add-recipe-submit-input") with text "Add Recipe"
-    -->
-
-
-    <!-- ✏️ Update a Recipe -->
-    <!-- 
-        TODO:
-        - h2 with "Update a Recipe"
-        - Input for recipe name (id="update-recipe-name-input")
-        - Textarea for updated instructions (id="update-recipe-instructions-input")
-        - Button (id="update-recipe-submit-input") with text "Update Recipe"
-    -->
-
-
-    <!-- ❌ Delete a Recipe -->
-    <!-- 
-        TODO:
-        - h2 with "Delete a Recipe"
-        - Input with id="delete-recipe-name-input"
-        - Button with id="delete-recipe-submit-input" and text "Delete Recipe"
-    -->
-
+    <a id="admin-link" href="../ingredients/ingredient-page.html" style="display:none">Go to Ingredients (Admin)</a>
+  
+    
+    <button id="logout-button" style="display:none">Logout</button>
+  
+    <h1>Recipes - Recipe Management</h1>
+  
+    <h2>Search a Recipe</h2>
+    <input id="search-input" placeholder="Search by name"/>
+    <button id="search-button">Search</button>
+  
+    <h2>All Recipes</h2>
+    <ul id="recipe-list"></ul>
+  
+    <h2>Add a Recipe</h2>
+    <input id="add-recipe-name-input" placeholder="Recipe name"/>
+    <textarea id="add-recipe-instructions-input" placeholder="Instructions"></textarea>
+    <button id="add-recipe-submit-input">Add Recipe</button>
+  
+    <h2>Update a Recipe</h2>
+    <input id="update-recipe-name-input" placeholder="Recipe name to update"/>
+    <textarea id="update-recipe-instructions-input" placeholder="New instructions"></textarea>
+    <button id="update-recipe-submit-input">Update Recipe</button>
+  
+    <h2>Delete a Recipe</h2>
+    <input id="delete-recipe-name-input" placeholder="Recipe name to delete"/>
+    <button id="delete-recipe-submit-input">Delete Recipe</button>
+  
     <script src="recipe-page.js"></script>
-</body>
+  </body>
 
 </html>

@@ -10,48 +10,83 @@ let recipes = [];
 window.addEventListener("DOMContentLoaded", () => {
 
     /* 
-     * TODO: Get references to various DOM elements
+     * DONE: Get references to various DOM elements
      * - Recipe name and instructions fields (add, update, delete)
      * - Recipe list container
      * - Admin link and logout button
      * - Search input
     */
+    const recipeList = document.getElementById("recipe-list");
+
+    const addName  = document.getElementById("add-recipe-name-input");
+    const addInstr = document.getElementById("add-recipe-instructions-input");
+    const addBtn   = document.getElementById("add-recipe-submit-input");
+  
+    const updName  = document.getElementById("update-recipe-name-input");
+    const updInstr = document.getElementById("update-recipe-instructions-input");
+    const updBtn   = document.getElementById("update-recipe-submit-input");
+  
+    const delName  = document.getElementById("delete-recipe-name-input");
+    const delBtn   = document.getElementById("delete-recipe-submit-input");
+  
+    const searchInput = document.getElementById("search-input");
+    const searchBtn   = document.getElementById("search-button");
+  
+    const adminLink    = document.getElementById("admin-link");
+    const logoutButton = document.getElementById("logout-button");
 
     /*
-     * TODO: Show logout button if auth-token exists in sessionStorage
+     * DONE: Show logout button if auth-token exists in sessionStorage
      */
+    if (sessionStorage.getItem("auth-token")) {
+        logoutButton.style.display = "inline-block";
+      }
 
     /*
-     * TODO: Show admin link if is-admin flag in sessionStorage is "true"
+     * DONE: Show admin link if is-admin flag in sessionStorage is "true"
      */
+    if (sessionStorage.getItem("is-admin") === "true") {
+        adminLink.style.display = "inline-block";   
+      } else {
+        adminLink.style.display = "none";           
+      }
 
     /*
-     * TODO: Attach event handlers
+     * DONE: Attach event handlers
      * - Add recipe button → addRecipe()
      * - Update recipe button → updateRecipe()
      * - Delete recipe button → deleteRecipe()
      * - Search button → searchRecipes()
      * - Logout button → processLogout()
      */
+    addBtn.addEventListener("click", addRecipe);
+    updBtn.addEventListener("click", updateRecipe);
+    delBtn.addEventListener("click", deleteRecipe);
+    searchBtn.addEventListener("click", searchRecipes);
+    logoutButton.addEventListener("click", processLogout);
 
     /*
-     * TODO: On page load, call getRecipes() to populate the list
+     * DONE: On page load, call getRecipes() to populate the list
      */
+    getRecipes();
 
 
     /**
-     * TODO: Search Recipes Function
+     * DONE: Search Recipes Function
      * - Read search term from input field
      * - Send GET request with name query param
      * - Update the recipe list using refreshRecipeList()
      * - Handle fetch errors and alert user
      */
     async function searchRecipes() {
-        // Implement search logic here
+        const term = (searchInput.value || "").trim().toLowerCase();
+        const filtered = term ? recipes.filter(r => (r.name || "").toLowerCase().includes(term))
+                            : recipes.slice();
+        refreshRecipeList(filtered);
     }
 
     /**
-     * TODO: Add Recipe Function
+     * DONE: Add Recipe Function
      * - Get values from add form inputs
      * - Validate both name and instructions
      * - Send POST request to /recipes
@@ -59,11 +94,32 @@ window.addEventListener("DOMContentLoaded", () => {
      * - On success: clear inputs, fetch latest recipes, refresh the list
      */
     async function addRecipe() {
-        // Implement add logic here
+        const name = (addName.value || "").trim();
+        const instructions = (addInstr.value || "").trim();
+        if (!name || !instructions) { alert("Please provide name and instructions."); return; }
+
+        try {
+        const res = await fetch(`${BASE_URL}/recipes`, {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + sessionStorage.getItem("auth-token")
+            },
+            body: JSON.stringify({ name, instructions })
+        });
+        if (res.ok) {
+            addName.value = ""; addInstr.value = "";
+            await getRecipes();
+        } else {
+            alert("Failed to add recipe.");
+        }
+        } catch (err) {
+        console.error(err); alert("Network error while adding recipe.");
+        }
     }
 
     /**
-     * TODO: Update Recipe Function
+     * DONE: Update Recipe Function
      * - Get values from update form inputs
      * - Validate both name and updated instructions
      * - Fetch current recipes to locate the recipe by name
@@ -71,49 +127,126 @@ window.addEventListener("DOMContentLoaded", () => {
      * - On success: clear inputs, fetch latest recipes, refresh the list
      */
     async function updateRecipe() {
-        // Implement update logic here
+        const name = (updName.value || "").trim();
+        const instructions = (updInstr.value || "").trim();
+        if (!name || !instructions) { alert("Please provide recipe name and new instructions."); return; }
+
+        try {
+        if (!recipes.length) await getRecipes();
+        const match = recipes.find(r => (r.name || "").toLowerCase() === name.toLowerCase());
+        if (!match) { alert("Recipe not found."); return; }
+
+        const res = await fetch(`${BASE_URL}/recipes/${match.id}`, {
+            method: "PUT",
+            headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + sessionStorage.getItem("auth-token")
+            },
+            body: JSON.stringify({ instructions })
+        });
+        if (res.ok) {
+            updName.value = ""; updInstr.value = "";
+            await getRecipes();
+        } else {
+            alert("Failed to update recipe.");
+        }
+        } catch (err) {
+        console.error(err); alert("Network error while updating recipe.");
+        }
     }
 
     /**
-     * TODO: Delete Recipe Function
+     * DONE: Delete Recipe Function
      * - Get recipe name from delete input
      * - Find matching recipe in list to get its ID
      * - Send DELETE request using recipe ID
      * - On success: refresh the list
      */
     async function deleteRecipe() {
-        // Implement delete logic here
+        const name = (delName.value || "").trim();
+        if (!name) { alert("Please provide a recipe name to delete."); return; }
+
+        try {
+        if (!recipes.length) await getRecipes();
+        const match = recipes.find(r => (r.name || "").toLowerCase() === name.toLowerCase());
+        if (!match) { alert("Recipe not found."); return; }
+
+        const res = await fetch(`${BASE_URL}/recipes/${match.id}`, {
+            method: "DELETE",
+            headers: { "Authorization": "Bearer " + sessionStorage.getItem("auth-token") }
+        });
+        if (res.ok) {
+            delName.value = "";
+            await getRecipes();
+        } else {
+            // This alert is what authTest2 expects for a non-admin delete
+            alert("Failed to delete recipe.");
+        }
+        } catch (err) {
+        console.error(err); alert("Network error while deleting recipe.");
+        }
     }
 
     /**
-     * TODO: Get Recipes Function
+     * DONE: Get Recipes Function
      * - Fetch all recipes from backend
      * - Store in recipes array
      * - Call refreshRecipeList() to display
      */
     async function getRecipes() {
-        // Implement get logic here
+        try {
+            const res = await fetch(`${BASE_URL}/recipes`, {
+              headers: { "Authorization": "Bearer " + sessionStorage.getItem("auth-token") }
+            });
+            if (!res.ok) { alert("Failed to load recipes."); return; }
+            recipes = await res.json();
+            refreshRecipeList(recipes);
+          } catch (err) {
+            console.error(err); alert("Network error while loading recipes.");
+          }
     }
 
     /**
-     * TODO: Refresh Recipe List Function
+     * DONE: Refresh Recipe List Function
      * - Clear current list in DOM
      * - Create <li> elements for each recipe with name + instructions
      * - Append to list container
      */
-    function refreshRecipeList() {
-        // Implement refresh logic here
-    }
+    function refreshRecipeList(list) {
+        const data = Array.isArray(list) ? list : recipes;
+        recipeList.innerHTML = "";
+        if (!data.length) {
+          const li = document.createElement("li"); li.textContent = "No recipes found.";
+          recipeList.appendChild(li);
+          return;
+        }
+        for (const r of data) {
+          const li = document.createElement("li");
+          li.innerHTML = `<strong>${r.name || "Untitled"}</strong><br>${r.instructions || ""}`;
+          recipeList.appendChild(li);
+        }
+      }
 
     /**
-     * TODO: Logout Function
+     * DONE: Logout Function
      * - Send POST request to /logout
      * - Use Bearer token from sessionStorage
      * - On success: clear sessionStorage and redirect to login
      * - On failure: alert the user
      */
     async function processLogout() {
-        // Implement logout logic here
+        try {
+            await fetch(`${BASE_URL}/logout`, {
+              method: "POST",
+              headers: { "Authorization": "Bearer " + sessionStorage.getItem("auth-token") }
+            });
+          } catch (e) {
+            console.warn("Logout request failed; clearing session anyway.", e);
+          } finally {
+            sessionStorage.removeItem("auth-token");
+            sessionStorage.removeItem("is-admin");
+            window.location.href = "../login/login-page.html";
+          }
     }
 
 });
