@@ -1,7 +1,7 @@
-commit d52910055ae62407bdb60e68f64f260d76b688c3
+commit 78db511a2148ef3436d6cec0220eceb8889e62cb
 Author: tegaomare <tegaomare@github.com>
-Date:   Wed Oct 29 18:44:59 2025 +0000
+Date:   Wed Oct 29 18:46:31 2025 +0000
 
-    frontend redister html and js pages updated
+    frontend pages updated with each respective source code
 
- 3 files changed, 68 insertions(+), 45 deletions(-)
+ 1 file changed, 4 insertions(+), 4 deletions(-)
