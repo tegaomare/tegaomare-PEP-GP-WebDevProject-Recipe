@@ -46,10 +46,11 @@ window.addEventListener("DOMContentLoaded", () => {
      */
     
     window.addEventListener("load", () => {
+      const adminLink = document.getElementById("admin-link");
       if (sessionStorage.getItem("is-admin") === "true") {
         adminLink.style.display = "inline-block";
       } else {
-        adminLink.style.display = "none";
+        adminLink.style.display = "none"; 
       }
     });
   

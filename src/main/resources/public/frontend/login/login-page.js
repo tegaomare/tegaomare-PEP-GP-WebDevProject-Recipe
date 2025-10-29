@@ -47,7 +47,11 @@ window.addEventListener("DOMContentLoaded", () => {
     async function processLogin() {
         const username = (loginInput.value || "").trim();
         const password = (passwordInput.value || "").trim();
-        if (!username || !password) { alert("Please enter username and password."); return; }
+
+        if (!username || !password) {
+            alert("Please enter username and password.");
+            return;
+        }
 
         try {
             const res = await fetch(`${BASE_URL}/login`, {
@@ -57,19 +61,26 @@ window.addEventListener("DOMContentLoaded", () => {
             });
 
             if (res.status === 200) {
-            // Backend returns: "<token> <isAdmin>"
+            //  Backend returns: "<token> <isAdmin>"
             const text = (await res.text()).trim();
             const [token, adminFlag] = text.split(/\s+/);
+
+            //  Save both values properly
             sessionStorage.setItem("auth-token", token || "");
-            sessionStorage.setItem("is-admin", String(adminFlag === "true"));
-            window.location.href = "../recipe/recipe-page.html";
+            sessionStorage.setItem("is-admin", adminFlag === "true" ? "true" : "false");
+
+            // Wait briefly before redirect (ensures token is stored before page reload)
+            setTimeout(() => {
+                window.location.href = "../recipe/recipe-page.html";
+            }, 100);
+
             } else if (res.status === 401) {
             alert("Incorrect login!");
             } else {
             alert("Unknown issue during login.");
             }
-        } catch (e) {
-            console.error(e);
+        } catch (err) {
+            console.error(err);
             alert("Network error while logging in.");
         }
     }

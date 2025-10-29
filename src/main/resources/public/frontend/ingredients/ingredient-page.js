@@ -39,15 +39,11 @@ window.addEventListener("DOMContentLoaded", () => {
     addBtn.addEventListener("click", addIngredient);
     delBtn.addEventListener("click", deleteIngredient);
 
-    // Load initial data after small delay (helps test timing)
-    setTimeout(getIngredients, 250);
-
-
 
     /* 
     * DONE: On page load, call getIngredients()
     */
-   // getIngredients();
+    getIngredients();
 
 
     /**
@@ -78,6 +74,7 @@ window.addEventListener("DOMContentLoaded", () => {
           if (res.ok) {
             addInput.value = "";
             await getIngredients();
+            refreshIngredientList();
           } else {
             alert("Failed to add ingredient.");
           }
@@ -147,6 +144,7 @@ window.addEventListener("DOMContentLoaded", () => {
           if (res.ok) {
             delInput.value = "";
             await getIngredients();
+            refreshIngredientList();
           } else {
             alert("Failed to delete ingredient.");
           }
