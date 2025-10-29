@@ -49,39 +49,35 @@ window.addEventListener("DOMContentLoaded", () => {
         const password = (passwordInput.value || "").trim();
 
         if (!username || !password) {
-            alert("Please enter username and password.");
-            return;
+        alert("Please enter username and password.");
+        return;
         }
 
         try {
-            const res = await fetch(`${BASE_URL}/login`, {
+        const res = await fetch(`${BASE_URL}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password })
-            });
+        });
 
-            if (res.status === 200) {
-            //  Backend returns: "<token> <isAdmin>"
+        if (res.ok) {
             const text = (await res.text()).trim();
             const [token, adminFlag] = text.split(/\s+/);
 
-            //  Save both values properly
             sessionStorage.setItem("auth-token", token || "");
             sessionStorage.setItem("is-admin", adminFlag === "true" ? "true" : "false");
 
-            // Wait briefly before redirect (ensures token is stored before page reload)
             setTimeout(() => {
-                window.location.href = "../recipe/recipe-page.html";
-            }, 100);
-
-            } else if (res.status === 401) {
+            window.location.href = "../recipe/recipe-page.html";
+            }, 50);
+        } else if (res.status === 401) {
             alert("Incorrect login!");
-            } else {
+        } else {
             alert("Unknown issue during login.");
-            }
+        }
         } catch (err) {
-            console.error(err);
-            alert("Network error while logging in.");
+        console.error(err);
+        alert("Network error while logging in.");
         }
     }
 });

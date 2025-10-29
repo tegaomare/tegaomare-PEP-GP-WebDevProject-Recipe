@@ -17,42 +17,38 @@ window.addEventListener("DOMContentLoaded", () => {
      * - Search input
     */
     const recipeList = document.getElementById("recipe-list");
-
-    const addName  = document.getElementById("add-recipe-name-input");
+    const addName = document.getElementById("add-recipe-name-input");
     const addInstr = document.getElementById("add-recipe-instructions-input");
-    const addBtn   = document.getElementById("add-recipe-submit-input");
-  
-    const updName  = document.getElementById("update-recipe-name-input");
+    const addBtn = document.getElementById("add-recipe-submit-input");
+    const updName = document.getElementById("update-recipe-name-input");
     const updInstr = document.getElementById("update-recipe-instructions-input");
-    const updBtn   = document.getElementById("update-recipe-submit-input");
-  
-    const delName  = document.getElementById("delete-recipe-name-input");
-    const delBtn   = document.getElementById("delete-recipe-submit-input");
-  
+    const updBtn = document.getElementById("update-recipe-submit-input");
+    const delName = document.getElementById("delete-recipe-name-input");
+    const delBtn = document.getElementById("delete-recipe-submit-input");
     const searchInput = document.getElementById("search-input");
-    const searchBtn   = document.getElementById("search-button");
-  
-    const adminLink    = document.getElementById("admin-link");
+    const searchBtn = document.getElementById("search-button");
+    const adminLink = document.getElementById("admin-link");
     const logoutBtn = document.getElementById("logout-button");
 
     /*
      * DONE: Show logout button if auth-token exists in sessionStorage
      */
-    if (sessionStorage.getItem("auth-token")) logoutBtn.style.display = "inline-block";
+    if (sessionStorage.getItem("auth-token")) {
+      logoutBtn.style.display = "inline-block";
+    }
 
 
     /*
      * DONE: Show admin link if is-admin flag in sessionStorage is "true"
      */
-    
-    window.addEventListener("load", () => {
-      const adminLink = document.getElementById("admin-link");
+    if (adminLink) {
       if (sessionStorage.getItem("is-admin") === "true") {
         adminLink.style.display = "inline-block";
       } else {
-        adminLink.style.display = "none"; 
+        adminLink.style.display = "none";
       }
-    });
+    }
+   
   
   
 
@@ -84,9 +80,18 @@ window.addEventListener("DOMContentLoaded", () => {
      * - Handle fetch errors and alert user
      */
     async function searchRecipes() {
-      const term = (searchInput.value || "").trim().toLowerCase();
-      const filtered = term ? recipes.filter(r => (r.name || "").toLowerCase().includes(term)) : recipes;
-      refreshRecipeList(filtered);
+      const term = (searchInput.value || "").trim();
+      try {
+        const url = term ? `${BASE_URL}/recipes?name=${encodeURIComponent(term)}` : `${BASE_URL}/recipes`;
+        const res = await fetch(url, {
+          headers: { "Authorization": "Bearer " + sessionStorage.getItem("auth-token") }
+        });
+        if (!res.ok) return alert("Failed to search recipes.");
+        const data = await res.json();
+        refreshRecipeList(Array.isArray(data) ? data : []);
+      } catch {
+        alert("Network error while searching recipes.");
+      }
     }
 
     /**
@@ -111,16 +116,12 @@ window.addEventListener("DOMContentLoaded", () => {
           },
           body: JSON.stringify({ name, instructions })
         });
-
         if (res.ok) {
           addName.value = "";
           addInstr.value = "";
           await getRecipes();
-        } else {
-          alert("Failed to add recipe.");
-        }
-      } catch (err) {
-        console.error(err);
+        } else alert("Failed to add recipe.");
+      } catch {
         alert("Network error while adding recipe.");
       }
     }
@@ -134,35 +135,31 @@ window.addEventListener("DOMContentLoaded", () => {
      * - On success: clear inputs, fetch latest recipes, refresh the list
      */
     async function updateRecipe() {
-        const name = (updName.value || "").trim();
-        const instructions = (updInstr.value || "").trim();
-        if (!name || !instructions) return alert("Please provide recipe name and new instructions.");
-    
-        try {
-          if (!recipes.length) await getRecipes();
-          const match = recipes.find(r => (r.name || "").toLowerCase() === name.toLowerCase());
-          if (!match) return alert("Recipe not found.");
-    
-          const res = await fetch(`${BASE_URL}/recipes/${match.id}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": "Bearer " + sessionStorage.getItem("auth-token")
-            },
-            body: JSON.stringify({ instructions })
-          });
-    
-          if (res.ok) {
-            updName.value = "";
-            updInstr.value = "";
-            await getRecipes();
-          } else {
-            alert("Failed to update recipe.");
-          }
-        } catch (err) {
-          console.error(err);
-          alert("Network error while updating recipe.");
-        }
+      const name = (updName.value || "").trim();
+      const instructions = (updInstr.value || "").trim();
+      if (!name || !instructions) return alert("Please provide recipe name and new instructions.");
+  
+      try {
+        if (!recipes.length) await getRecipes();
+        const match = recipes.find(r => (r.name || "").toLowerCase() === name.toLowerCase());
+        if (!match) return alert("Recipe not found.");
+  
+        const res = await fetch(`${BASE_URL}/recipes/${match.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + sessionStorage.getItem("auth-token")
+          },
+          body: JSON.stringify({ instructions })
+        });
+        if (res.ok) {
+          updName.value = "";
+          updInstr.value = "";
+          await getRecipes();
+        } else alert("Failed to update recipe.");
+      } catch {
+        alert("Network error while updating recipe.");
+      }
     }
 
     /**
@@ -190,12 +187,9 @@ window.addEventListener("DOMContentLoaded", () => {
           delName.value = "";
           await getRecipes();
         } else {
-         
-          if (sessionStorage.getItem("is-admin") !== "true")
-            alert("Not authorized to delete this recipe.");
+          alert("Not authorized to delete this recipe.");
         }
-      } catch (err) {
-        console.error(err);
+      } catch {
         alert("Network error while deleting recipe.");
       }
     }
@@ -211,11 +205,11 @@ window.addEventListener("DOMContentLoaded", () => {
         const res = await fetch(`${BASE_URL}/recipes`, {
           headers: { "Authorization": "Bearer " + sessionStorage.getItem("auth-token") }
         });
-        if (!res.ok) { alert("Failed to load recipes."); return; }
+        if (!res.ok) return alert("Failed to load recipes.");
         recipes = await res.json();
         refreshRecipeList(recipes);
-      } catch (e) {
-        console.error(e); alert("Network error while loading recipes.");
+      } catch {
+        alert("Network error while loading recipes.");
       }
     }
 
@@ -254,13 +248,10 @@ window.addEventListener("DOMContentLoaded", () => {
           method: "POST",
           headers: { "Authorization": "Bearer " + sessionStorage.getItem("auth-token") }
         });
-      } catch (_) {
-        // ignore
-      } finally {
-        sessionStorage.removeItem("auth-token");
-        sessionStorage.removeItem("is-admin");
-        window.location.href = "../login/login-page.html";
-      }
+      } catch {}
+      sessionStorage.removeItem("auth-token");
+      sessionStorage.removeItem("is-admin");
+      window.location.href = "../login/login-page.html";
     }
 
 });

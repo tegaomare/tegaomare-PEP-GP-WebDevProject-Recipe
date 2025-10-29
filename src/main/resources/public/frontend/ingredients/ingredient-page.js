@@ -127,24 +127,24 @@ window.addEventListener("DOMContentLoaded", () => {
      * - On failure or not found: alert the user
      */
     async function deleteIngredient() {
-        const name = (delInput.value || "").trim().toLowerCase();
+        const name = (delInput.value || "").trim();
         if (!name) return alert("Please enter an ingredient name to delete.");
       
-       
-        const index = ingredients.findIndex(i => (i.name || "").toLowerCase() === name);
-        if (index === -1) return alert("Ingredient not found.");
+        // Ensure we have the latest list and find by case-insensitive name
+        if (!ingredients.length) await getIngredients();
+        const match = ingredients.find(i => (i.name || "").toLowerCase() === name.toLowerCase());
+        if (!match) return alert("Ingredient not found.");
       
         try {
-          const id = ingredients[index].id || (index + 1);
-          const res = await fetch(`${BASE_URL}/ingredients/${id}`, {
+          const res = await fetch(`${BASE_URL}/ingredients/${match.id}`, {
             method: "DELETE",
             headers: { "Authorization": "Bearer " + sessionStorage.getItem("auth-token") }
           });
       
           if (res.ok) {
             delInput.value = "";
-            await getIngredients();
-            refreshIngredientList();
+            await getIngredients();     // server truth
+            refreshIngredientList();    // render
           } else {
             alert("Failed to delete ingredient.");
           }
@@ -174,12 +174,13 @@ window.addEventListener("DOMContentLoaded", () => {
         listEl.appendChild(li);
         return;
       }
-  
+
       for (const ing of ingredients) {
         const li = document.createElement("li");
-        li.textContent = ing.name;
+        const p = document.createElement("p");
+        p.textContent = ing.name || "(Unnamed Ingredient)";
+        li.appendChild(p);
         listEl.appendChild(li);
       }
-    
     }
 });
