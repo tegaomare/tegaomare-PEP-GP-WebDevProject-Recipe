@@ -1,0 +1,7 @@
+commit 900d7eee45803f6df2e7c0de7b3ff5b9e2009343
+Author: tegaomare <tegaomare@github.com>
+Date:   Wed Oct 29 18:20:03 2025 +0000
+
+    frontend ingredient html and js pages updated
+
+ 40 files changed, 165 insertions(+), 85 deletions(-)
