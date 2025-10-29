@@ -18,11 +18,11 @@ let ingredients = [];
  * - adminLink (if visible conditionally)
  */
 window.addEventListener("DOMContentLoaded", () => {
-    const addInput      = document.getElementById("add-ingredient-name-input");
-    const delInput      = document.getElementById("delete-ingredient-name-input");
-    const addBtn        = document.getElementById("add-ingredient-submit-button");
-    const delBtn        = document.getElementById("delete-ingredient-submit-button");
-    const listEl = document.getElementById("ingredient-list");
+  const addInput = document.getElementById("add-ingredient-name-input");
+  const delInput = document.getElementById("delete-ingredient-name-input");
+  const addBtn   = document.getElementById("add-ingredient-submit-button");
+  const delBtn   = document.getElementById("delete-ingredient-submit-button");
+  const listEl   = document.getElementById("ingredient-list");
   
     // Admin gate: redirect non-admins back to recipes
     if (sessionStorage.getItem("is-admin") !== "true") {
@@ -97,11 +97,11 @@ window.addEventListener("DOMContentLoaded", () => {
           });
           if (!res.ok) { alert("Failed to fetch ingredients."); return; }
           ingredients = await res.json();
-          refresh();
+          refreshIngredientList();   
         } catch (e) {
           console.error(e); alert("Network error while fetching ingredients.");
         }
-  
+    
     }
 
 
