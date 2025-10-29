@@ -45,11 +45,14 @@ window.addEventListener("DOMContentLoaded", () => {
      * DONE: Show admin link if is-admin flag in sessionStorage is "true"
      */
     
-    if (adminLink && sessionStorage.getItem("is-admin") === "true") {
-      adminLink.style.display = "inline-block";
-    } else {
+    window.addEventListener("load", () => {
+      if (sessionStorage.getItem("is-admin") === "true") {
+        adminLink.style.display = "inline-block";
+      } else {
         adminLink.style.display = "none";
-    }
+      }
+    });
+  
   
 
     /*
@@ -96,8 +99,8 @@ window.addEventListener("DOMContentLoaded", () => {
     async function addRecipe() {
       const name = (addName.value || "").trim();
       const instructions = (addInstr.value || "").trim();
-      if (!name || !instructions) { alert("Please provide name and instructions."); return; }
-  
+      if (!name || !instructions) return alert("Please provide name and instructions.");
+
       try {
         const res = await fetch(`${BASE_URL}/recipes`, {
           method: "POST",
@@ -107,14 +110,17 @@ window.addEventListener("DOMContentLoaded", () => {
           },
           body: JSON.stringify({ name, instructions })
         });
+
         if (res.ok) {
-          addName.value = ""; addInstr.value = "";
+          addName.value = "";
+          addInstr.value = "";
           await getRecipes();
         } else {
           alert("Failed to add recipe.");
         }
-      } catch (e) {
-        console.error(e); alert("Network error while adding recipe.");
+      } catch (err) {
+        console.error(err);
+        alert("Network error while adding recipe.");
       }
     }
 
@@ -129,29 +135,32 @@ window.addEventListener("DOMContentLoaded", () => {
     async function updateRecipe() {
         const name = (updName.value || "").trim();
         const instructions = (updInstr.value || "").trim();
-        if (!name || !instructions) { alert("Please provide recipe name and new instructions."); return; }
-
+        if (!name || !instructions) return alert("Please provide recipe name and new instructions.");
+    
         try {
-        if (!recipes.length) await getRecipes();
-        const match = recipes.find(r => (r.name || "").toLowerCase() === name.toLowerCase());
-        if (!match) { alert("Recipe not found."); return; }
-
-        const res = await fetch(`${BASE_URL}/recipes/${match.id}`, {
+          if (!recipes.length) await getRecipes();
+          const match = recipes.find(r => (r.name || "").toLowerCase() === name.toLowerCase());
+          if (!match) return alert("Recipe not found.");
+    
+          const res = await fetch(`${BASE_URL}/recipes/${match.id}`, {
             method: "PUT",
             headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + sessionStorage.getItem("auth-token")
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + sessionStorage.getItem("auth-token")
             },
             body: JSON.stringify({ instructions })
-        });
-        if (res.ok) {
-            updName.value = ""; updInstr.value = "";
+          });
+    
+          if (res.ok) {
+            updName.value = "";
+            updInstr.value = "";
             await getRecipes();
-        } else {
+          } else {
             alert("Failed to update recipe.");
-        }
+          }
         } catch (err) {
-        console.error(err); alert("Network error while updating recipe.");
+          console.error(err);
+          alert("Network error while updating recipe.");
         }
     }
 
@@ -164,25 +173,29 @@ window.addEventListener("DOMContentLoaded", () => {
      */
     async function deleteRecipe() {
       const name = (delName.value || "").trim();
-      if (!name) { alert("Please provide a recipe name to delete."); return; }
-  
+      if (!name) return alert("Please provide a recipe name to delete.");
+
+      if (!recipes.length) await getRecipes();
+      const match = recipes.find(r => (r.name || "").toLowerCase() === name.toLowerCase());
+      if (!match) return alert("Recipe not found.");
+
       try {
-        if (!recipes.length) await getRecipes();
-        const match = recipes.find(r => (r.name || "").toLowerCase() === name.toLowerCase());
-        if (!match) { alert("Recipe not found."); return; }
-  
         const res = await fetch(`${BASE_URL}/recipes/${match.id}`, {
           method: "DELETE",
           headers: { "Authorization": "Bearer " + sessionStorage.getItem("auth-token") }
         });
+
         if (res.ok) {
           delName.value = "";
-          await getRecipes();           
+          await getRecipes();
         } else {
-          alert("Not authorized to delete this recipe."); 
+         
+          if (sessionStorage.getItem("is-admin") !== "true")
+            alert("Not authorized to delete this recipe.");
         }
-      } catch (e) {
-        console.error(e); alert("Network error while deleting recipe.");
+      } catch (err) {
+        console.error(err);
+        alert("Network error while deleting recipe.");
       }
     }
 

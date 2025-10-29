@@ -60,7 +60,6 @@ window.addEventListener("DOMContentLoaded", () => {
             // Backend returns: "<token> <isAdmin>"
             const text = (await res.text()).trim();
             const [token, adminFlag] = text.split(/\s+/);
-            console.log("Parsed login:", { token, adminFlag });
             sessionStorage.setItem("auth-token", token || "");
             sessionStorage.setItem("is-admin", String(adminFlag === "true"));
             window.location.href = "../recipe/recipe-page.html";

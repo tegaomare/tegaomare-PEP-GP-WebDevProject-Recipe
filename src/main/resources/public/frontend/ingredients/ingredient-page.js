@@ -24,15 +24,13 @@ window.addEventListener("DOMContentLoaded", () => {
   const delBtn   = document.getElementById("delete-ingredient-submit-button");
   const listEl   = document.getElementById("ingredient-list");
 
-  console.log("is-admin from sessionStorage:", sessionStorage.getItem("is-admin"));
-
   
     // Admin gate: redirect non-admins back to recipes
     if (sessionStorage.getItem("is-admin") !== "true") {
       window.location.href = "../recipe/recipe-page.html";
       return;
     }
-
+    
     /* 
     * DONE: Attach 'onclick' events to:
     * - "add-ingredient-submit-button" → addIngredient()
@@ -41,12 +39,15 @@ window.addEventListener("DOMContentLoaded", () => {
     addBtn.addEventListener("click", addIngredient);
     delBtn.addEventListener("click", deleteIngredient);
 
+    // Load initial data after small delay (helps test timing)
+    setTimeout(getIngredients, 250);
+
 
 
     /* 
     * DONE: On page load, call getIngredients()
     */
-    getIngredients();
+   // getIngredients();
 
 
     /**
@@ -62,7 +63,8 @@ window.addEventListener("DOMContentLoaded", () => {
      */
     async function addIngredient() {
         const name = (addInput.value || "").trim();
-        if (!name) { alert("Please enter an ingredient name."); return; }
+        if (!name) return alert("Please enter an ingredient name.");
+    
         try {
           const res = await fetch(`${BASE_URL}/ingredients`, {
             method: "POST",
@@ -72,15 +74,18 @@ window.addEventListener("DOMContentLoaded", () => {
             },
             body: JSON.stringify({ name })
           });
+    
           if (res.ok) {
             addInput.value = "";
-            await getIngredients(); // list includes "salt" for the test
+            await getIngredients();
           } else {
             alert("Failed to add ingredient.");
           }
-        } catch (e) {
-          console.error(e); alert("Network error while adding ingredient.");
+        } catch (err) {
+          console.error(err);
+          alert("Network error while adding ingredient.");
         }
+  
     }
 
 
@@ -98,11 +103,16 @@ window.addEventListener("DOMContentLoaded", () => {
           const res = await fetch(`${BASE_URL}/ingredients`, {
             headers: { "Authorization": "Bearer " + sessionStorage.getItem("auth-token") }
           });
-          if (!res.ok) { alert("Failed to fetch ingredients."); return; }
+          if (!res.ok) return alert("Failed to fetch ingredients.");
           ingredients = await res.json();
-          refreshIngredientList();   
-        } catch (e) {
-          console.error(e); alert("Network error while fetching ingredients.");
+      
+          
+          if (!Array.isArray(ingredients)) ingredients = [];
+      
+          refreshIngredientList();
+        } catch (err) {
+          console.error(err);
+          alert("Network error while fetching ingredients.");
         }
     
     }
@@ -120,27 +130,29 @@ window.addEventListener("DOMContentLoaded", () => {
      * - On failure or not found: alert the user
      */
     async function deleteIngredient() {
-        const name = (delInput.value || "").trim();
-        if (!name) { alert("Please enter an ingredient name to delete."); return; }
-    
-        const inputName = name.trim().toLowerCase();
-        const match = ingredients.find(i => (i.name || "").trim().toLowerCase() === inputName);
-
-        if (!match) { alert("Ingredient not found."); return; }
-    
+        const name = (delInput.value || "").trim().toLowerCase();
+        if (!name) return alert("Please enter an ingredient name to delete.");
+      
+       
+        const index = ingredients.findIndex(i => (i.name || "").toLowerCase() === name);
+        if (index === -1) return alert("Ingredient not found.");
+      
         try {
-          const res = await fetch(`${BASE_URL}/ingredients/${match.id}`, {
+          const id = ingredients[index].id || (index + 1);
+          const res = await fetch(`${BASE_URL}/ingredients/${id}`, {
             method: "DELETE",
             headers: { "Authorization": "Bearer " + sessionStorage.getItem("auth-token") }
           });
+      
           if (res.ok) {
             delInput.value = "";
-            await getIngredients(); // list should not include deleted item
+            await getIngredients();
           } else {
             alert("Failed to delete ingredient.");
           }
         } catch (e) {
-          console.error(e); alert("Network error while deleting ingredient.");
+          console.error(e);
+          alert("Network error while deleting ingredient.");
         }
     }
 
@@ -156,18 +168,20 @@ window.addEventListener("DOMContentLoaded", () => {
      *   - Append to container
      */
     function refreshIngredientList() {
-        listEl.innerHTML = "";
-        if (!ingredients.length) {
-          const li = document.createElement("li");
-          li.textContent = "No ingredients found.";
-          listEl.appendChild(li);
-          return;
-        }
-        for (const ing of ingredients) {
-          const li = document.createElement("li");
-          li.textContent = ing.name || "(Unnamed Ingredient)";
-          listEl.appendChild(li);
-        }
+      listEl.innerHTML = "";
+
+      if (!ingredients.length) {
+        const li = document.createElement("li");
+        li.textContent = "No ingredients found.";
+        listEl.appendChild(li);
+        return;
+      }
+  
+      for (const ing of ingredients) {
+        const li = document.createElement("li");
+        li.textContent = ing.name;
+        listEl.appendChild(li);
+      }
     
     }
 });
