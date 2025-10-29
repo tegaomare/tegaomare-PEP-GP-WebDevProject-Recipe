@@ -1,7 +1,7 @@
-commit d458fb5cdb2a6cf7d6ca0151e0c1a94659c184c7
+commit d52910055ae62407bdb60e68f64f260d76b688c3
 Author: tegaomare <tegaomare@github.com>
-Date:   Wed Oct 29 18:35:49 2025 +0000
+Date:   Wed Oct 29 18:44:59 2025 +0000
 
-    frontend recipe html and js pages updated
+    frontend redister html and js pages updated
 
- 3 files changed, 187 insertions(+), 79 deletions(-)
+ 3 files changed, 68 insertions(+), 45 deletions(-)
