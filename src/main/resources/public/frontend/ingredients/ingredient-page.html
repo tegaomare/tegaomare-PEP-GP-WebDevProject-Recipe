@@ -7,25 +7,27 @@
     <link rel="stylesheet" href="ingredient-page.css">
 </head>
 <body>
-
-    <!-- TODO: Create a link back to the recipe page with an id of "back-link" -->
-
-    <!-- TODO: Create a heading for the page -->
-
-    <!-- TODO: Create a section to display the list of ingredients -->
-    <!-- - Include an h2 titled "Ingredients" -->
-    <!-- - Include a <ul> with id "ingredient-list" -->
-
-    <!-- TODO: Create a section to add a new ingredient -->
-    <!-- - Include an h2 titled "Add an Ingredient" -->
-    <!-- - Include an input field with id "add-ingredient-name-input" -->
-    <!-- - Include a button with id "add-ingredient-submit-button" -->
-
-    <!-- TODO: Create a section to delete an ingredient -->
-    <!-- - Include an h2 titled "Delete an Ingredient" -->
-    <!-- - Include an input field with id "delete-ingredient-name-input" -->
-    <!-- - Include a button with id "delete-ingredient-submit-button" -->
-
+    <a id="back-link" href="../recipe/recipe-page.html">← Back to Recipes</a>
+  
+    <h1>Ingredient Management</h1>
+  
+    <section>
+      <h2>Ingredients</h2>
+      <ul id="ingredient-list"></ul>
+    </section>
+  
+    <section>
+      <h2>Add an Ingredient</h2>
+      <input id="add-ingredient-name-input" placeholder="Enter ingredient name"/>
+      <button id="add-ingredient-submit-button">Add Ingredient</button>
+    </section>
+  
+    <section>
+      <h2>Delete an Ingredient</h2>
+      <input id="delete-ingredient-name-input" placeholder="Enter ingredient name"/>
+      <button id="delete-ingredient-submit-button">Delete Ingredient</button>
+    </section>
+  
     <script src="ingredient-page.js"></script>
-</body>
+  </body>
 </html>
