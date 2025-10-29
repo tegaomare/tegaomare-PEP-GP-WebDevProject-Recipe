@@ -33,23 +33,19 @@ window.addEventListener("DOMContentLoaded", () => {
     const searchBtn   = document.getElementById("search-button");
   
     const adminLink    = document.getElementById("admin-link");
-    const logoutButton = document.getElementById("logout-button");
+    const logoutBtn = document.getElementById("logout-button");
 
     /*
      * DONE: Show logout button if auth-token exists in sessionStorage
      */
-    if (sessionStorage.getItem("auth-token")) {
-        logoutButton.style.display = "inline-block";
-      }
+    if (sessionStorage.getItem("auth-token")) logoutBtn.style.display = "inline-block";
+
 
     /*
      * DONE: Show admin link if is-admin flag in sessionStorage is "true"
      */
-    if (sessionStorage.getItem("is-admin") === "true") {
-        adminLink.style.display = "inline-block";   
-      } else {
-        adminLink.style.display = "none";           
-      }
+    
+    if (sessionStorage.getItem("is-admin") === "true") adminLink.style.display = "inline-block";
 
     /*
      * DONE: Attach event handlers
@@ -63,7 +59,7 @@ window.addEventListener("DOMContentLoaded", () => {
     updBtn.addEventListener("click", updateRecipe);
     delBtn.addEventListener("click", deleteRecipe);
     searchBtn.addEventListener("click", searchRecipes);
-    logoutButton.addEventListener("click", processLogout);
+    logoutBtn.addEventListener("click", processLogout);
 
     /*
      * DONE: On page load, call getRecipes() to populate the list
@@ -79,10 +75,9 @@ window.addEventListener("DOMContentLoaded", () => {
      * - Handle fetch errors and alert user
      */
     async function searchRecipes() {
-        const term = (searchInput.value || "").trim().toLowerCase();
-        const filtered = term ? recipes.filter(r => (r.name || "").toLowerCase().includes(term))
-                            : recipes.slice();
-        refreshRecipeList(filtered);
+      const term = (searchInput.value || "").trim().toLowerCase();
+      const filtered = term ? recipes.filter(r => (r.name || "").toLowerCase().includes(term)) : recipes;
+      refreshRecipeList(filtered);
     }
 
     /**
@@ -94,28 +89,28 @@ window.addEventListener("DOMContentLoaded", () => {
      * - On success: clear inputs, fetch latest recipes, refresh the list
      */
     async function addRecipe() {
-        const name = (addName.value || "").trim();
-        const instructions = (addInstr.value || "").trim();
-        if (!name || !instructions) { alert("Please provide name and instructions."); return; }
-
-        try {
+      const name = (addName.value || "").trim();
+      const instructions = (addInstr.value || "").trim();
+      if (!name || !instructions) { alert("Please provide name and instructions."); return; }
+  
+      try {
         const res = await fetch(`${BASE_URL}/recipes`, {
-            method: "POST",
-            headers: {
+          method: "POST",
+          headers: {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + sessionStorage.getItem("auth-token")
-            },
-            body: JSON.stringify({ name, instructions })
+          },
+          body: JSON.stringify({ name, instructions })
         });
         if (res.ok) {
-            addName.value = ""; addInstr.value = "";
-            await getRecipes();
+          addName.value = ""; addInstr.value = "";
+          await getRecipes();
         } else {
-            alert("Failed to add recipe.");
+          alert("Failed to add recipe.");
         }
-        } catch (err) {
-        console.error(err); alert("Network error while adding recipe.");
-        }
+      } catch (e) {
+        console.error(e); alert("Network error while adding recipe.");
+      }
     }
 
     /**
@@ -163,28 +158,27 @@ window.addEventListener("DOMContentLoaded", () => {
      * - On success: refresh the list
      */
     async function deleteRecipe() {
-        const name = (delName.value || "").trim();
-        if (!name) { alert("Please provide a recipe name to delete."); return; }
-
-        try {
+      const name = (delName.value || "").trim();
+      if (!name) { alert("Please provide a recipe name to delete."); return; }
+  
+      try {
         if (!recipes.length) await getRecipes();
         const match = recipes.find(r => (r.name || "").toLowerCase() === name.toLowerCase());
         if (!match) { alert("Recipe not found."); return; }
-
+  
         const res = await fetch(`${BASE_URL}/recipes/${match.id}`, {
-            method: "DELETE",
-            headers: { "Authorization": "Bearer " + sessionStorage.getItem("auth-token") }
+          method: "DELETE",
+          headers: { "Authorization": "Bearer " + sessionStorage.getItem("auth-token") }
         });
         if (res.ok) {
-            delName.value = "";
-            await getRecipes();
+          delName.value = "";
+          await getRecipes();           
         } else {
-            // This alert is what authTest2 expects for a non-admin delete
-            alert("Failed to delete recipe.");
+          alert("Not authorized to delete this recipe."); 
         }
-        } catch (err) {
-        console.error(err); alert("Network error while deleting recipe.");
-        }
+      } catch (e) {
+        console.error(e); alert("Network error while deleting recipe.");
+      }
     }
 
     /**
@@ -194,16 +188,16 @@ window.addEventListener("DOMContentLoaded", () => {
      * - Call refreshRecipeList() to display
      */
     async function getRecipes() {
-        try {
-            const res = await fetch(`${BASE_URL}/recipes`, {
-              headers: { "Authorization": "Bearer " + sessionStorage.getItem("auth-token") }
-            });
-            if (!res.ok) { alert("Failed to load recipes."); return; }
-            recipes = await res.json();
-            refreshRecipeList(recipes);
-          } catch (err) {
-            console.error(err); alert("Network error while loading recipes.");
-          }
+      try {
+        const res = await fetch(`${BASE_URL}/recipes`, {
+          headers: { "Authorization": "Bearer " + sessionStorage.getItem("auth-token") }
+        });
+        if (!res.ok) { alert("Failed to load recipes."); return; }
+        recipes = await res.json();
+        refreshRecipeList(recipes);
+      } catch (e) {
+        console.error(e); alert("Network error while loading recipes.");
+      }
     }
 
     /**
@@ -213,19 +207,20 @@ window.addEventListener("DOMContentLoaded", () => {
      * - Append to list container
      */
     function refreshRecipeList(list) {
-        const data = Array.isArray(list) ? list : recipes;
-        recipeList.innerHTML = "";
-        if (!data.length) {
-          const li = document.createElement("li"); li.textContent = "No recipes found.";
-          recipeList.appendChild(li);
-          return;
-        }
-        for (const r of data) {
-          const li = document.createElement("li");
-          li.innerHTML = `<strong>${r.name || "Untitled"}</strong><br>${r.instructions || ""}`;
-          recipeList.appendChild(li);
-        }
+      const data = Array.isArray(list) ? list : recipes;
+      recipeList.innerHTML = "";
+      if (!data.length) {
+        const li = document.createElement("li");
+        li.textContent = "No recipes found.";
+        recipeList.appendChild(li);
+        return;
       }
+      for (const r of data) {
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>${r.name || ""}</strong><br>${r.instructions || ""}`;
+        recipeList.appendChild(li);
+      }
+    }
 
     /**
      * DONE: Logout Function
@@ -235,18 +230,18 @@ window.addEventListener("DOMContentLoaded", () => {
      * - On failure: alert the user
      */
     async function processLogout() {
-        try {
-            await fetch(`${BASE_URL}/logout`, {
-              method: "POST",
-              headers: { "Authorization": "Bearer " + sessionStorage.getItem("auth-token") }
-            });
-          } catch (e) {
-            console.warn("Logout request failed; clearing session anyway.", e);
-          } finally {
-            sessionStorage.removeItem("auth-token");
-            sessionStorage.removeItem("is-admin");
-            window.location.href = "../login/login-page.html";
-          }
+      try {
+        await fetch(`${BASE_URL}/logout`, {
+          method: "POST",
+          headers: { "Authorization": "Bearer " + sessionStorage.getItem("auth-token") }
+        });
+      } catch (_) {
+        // ignore
+      } finally {
+        sessionStorage.removeItem("auth-token");
+        sessionStorage.removeItem("is-admin");
+        window.location.href = "../login/login-page.html";
+      }
     }
 
 });

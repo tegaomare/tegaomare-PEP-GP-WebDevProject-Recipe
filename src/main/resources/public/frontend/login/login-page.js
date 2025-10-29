@@ -47,52 +47,30 @@ window.addEventListener("DOMContentLoaded", () => {
     async function processLogin() {
         const username = (loginInput.value || "").trim();
         const password = (passwordInput.value || "").trim();
-        if (!username || !password) {
-        alert("Please enter username and password.");
-        return;
-        }
+        if (!username || !password) { alert("Please enter username and password."); return; }
 
         try {
-        const res = await fetch(`${BASE_URL}/login`, {
+            const res = await fetch(`${BASE_URL}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password })
-        });
+            });
 
-        if (res.status === 200) {
-            // Support both JSON and plain-text formats
-            let token = null;
-            let isAdmin = "false";
-
-            const ct = (res.headers.get("content-type") || "").toLowerCase();
-            if (ct.includes("application/json")) {
-            const j = await res.json();
-            token   = j["auth-token"] || j["token"] || null;
-            const adminVal = j["is-admin"] ?? j["isAdmin"] ?? j["admin"];
-            if (typeof adminVal === "boolean") isAdmin = adminVal ? "true" : "false";
-            if (typeof adminVal === "string")  isAdmin = adminVal === "true" ? "true" : "false";
-            } else {
-            const text = (await res.text()).trim(); // e.g. "abcd123 true"
-            const parts = text.split(/\s+/);
-            token = parts[0] || null;
-            if (parts.length > 1) isAdmin = parts[1] === "true" ? "true" : "false";
-            }
-
-            if (!token) { alert("Login succeeded but no token was returned."); return; }
-
-            sessionStorage.setItem("auth-token", token);
-            sessionStorage.setItem("is-admin", isAdmin);
-
-            // go to recipe page
+            if (res.status === 200) {
+            // Backend returns: "<token> <isAdmin>"
+            const text = (await res.text()).trim();
+            const [token, adminFlag] = text.split(/\s+/);
+            sessionStorage.setItem("auth-token", token || "");
+            sessionStorage.setItem("is-admin", String(adminFlag === "true"));
             window.location.href = "../recipe/recipe-page.html";
-        } else if (res.status === 401) {
+            } else if (res.status === 401) {
             alert("Incorrect login!");
-        } else {
+            } else {
             alert("Unknown issue during login.");
-        }
+            }
         } catch (e) {
-        console.error(e);
-        alert("Network error while logging in.");
+            console.error(e);
+            alert("Network error while logging in.");
         }
     }
 });
