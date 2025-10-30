@@ -1,7 +1,7 @@
-commit 60f84d3187909e45142a3b24b3d1954109d6261e
+commit 5483cb0e602ac8a240df8ae52f139eabd156293a
 Author: tegaomare <tegaomare@github.com>
-Date:   Wed Oct 29 21:58:30 2025 +0000
+Date:   Wed Oct 29 23:36:05 2025 +0000
 
-    took out the debug console.log code
+    testing debug
 
- 4 files changed, 100 insertions(+), 74 deletions(-)
+ 3 files changed, 87 insertions(+), 99 deletions(-)
